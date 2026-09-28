@@ -17,7 +17,7 @@ def _form_token_dict(sp):
 if __name__ == '__main__': 
     load_dotenv()  
     client = TypeSafeClient() 
-    sp = spm.SentencePieceProcessor(model_file='./data/shk.model')
+    sp = spm.SentencePieceProcessor(model_file='./shk.model')
 
     instr = 'Choose the next token to generate a coherent continuation of the provided Shakespeare text. Underscore before token means space.'
     token_choices = _form_token_dict(sp) 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     ticket = prefix_enc_str
 
     # sampling params 
-    tokens = 16
+    tokens = 32
     t = 1.0
 
     # generation 
