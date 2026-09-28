@@ -50,4 +50,4 @@ if __name__ == '__main__':
         ticket = _next_sample()
         print(f'target: {repr(target)}, loss: {loss:.2f}')
 
-    print(f'avg. loss: {losses.mean():.2f}, uniform sampling: {np.log(len(ascii_choices.keys())):.2f}')
+    print(f'avg. loss: {losses.mean():.2f}, uniform sampling: {np.log(len(ascii_choices.keys())):.2f}, catastrophic misses (>20 nats): {(losses > 20).sum()}')
