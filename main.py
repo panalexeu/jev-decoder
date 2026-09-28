@@ -15,9 +15,9 @@ if __name__ == '__main__':
                     "department": Choice(
                             instructions="Which team should handle this", 
                             criteria={
-                                "billing": "Payment or subscription issues", 
-                                "technical": "Bugs or integration problems", 
-                                "sales": "Pricing or account questions", 
+                                "billing": None, 
+                                "technical": None, 
+                                "sales": None, 
                             }
                     ),
                     "frustration": Score(
