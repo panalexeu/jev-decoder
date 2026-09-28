@@ -6,7 +6,6 @@ from typesafe_sdk import TypeSafeClient, Choice
 def _sample(probs: dict, t: float=1.0):
     chars = list(probs.keys())
     p = np.array(list(probs.values()), dtype=float)
-    # softmax(log(p) / T) = exp(log(p) / T) / sum(...) = p^(1/T) / sum(...)
     p = p ** (1 / t)
     p /= p.sum()  
     return np.random.choice(chars, p=p)
