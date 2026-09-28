@@ -1,3 +1,4 @@
+from rich import print 
 from dotenv import load_dotenv
 from typesafe_sdk import Choice, Noul, Score, TypeSafeClient 
 
