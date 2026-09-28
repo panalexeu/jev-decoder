@@ -23,7 +23,7 @@ if __name__ == '__main__':
     ticket = prefix 
 
     # sampling params 
-    tokens = 8
+    tokens = 16
     t = 1.0
 
     # generation 
