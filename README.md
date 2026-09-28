@@ -10,3 +10,5 @@ Below are some completed experiments:
 | experiment | idea | result |
 | ---------- | ---- | ------ |
 |            |      |        |
+
+Before running scripts download tiny-shaekspere `uv run ./scripts/dwnld_shk.py` and train tokenizer `uv run ./scripts/train_tokenizer.py`. 

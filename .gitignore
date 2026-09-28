@@ -1,3 +1,5 @@
 .venv/ 
 .env
 data/
+shk.vocab
+shk.model
