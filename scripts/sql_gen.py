@@ -121,11 +121,8 @@ if __name__ == "__main__":
             print('exec result:')
             print(_exec_statement(query, row['db_id']))
 
-        try: 
-            _eval_queries(query, row['query'], row['db_id'])
-        except AssertionError: 
-            pass
-        else: 
-            match += 1
+        
+        res = _eval_queries(query, row['query'], row['db_id'])
+        match += int(res)
 
         print(f'q: {i+1}/{len(ds)}, matches: {match}')
