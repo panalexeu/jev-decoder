@@ -90,7 +90,7 @@ avg. loss: 7.71, uniform sampling: 4.17, catastrophic misses (>20 nats): 45
 The idea is again to use jev as a decoder model, but this time the choices come from context-free grammar rules defined for SQL, with one caveat:
 NUMBER and STRING tokens are extracted from the correct reference query and added to the choices.
 The grammar rules are defined in the `sql.lark` file (I asked Claude to write them). Surprisingly, jev is pretty good at
-writing working SQL queries (compared to the previous experiments). On the Spider benchmark, jev's queries return the same results as the reference queries roughly half the time.
+writing working SQL queries (compared to the previous experiments). On the Spider benchmark, jev's queries return the same results as the reference queries roughly half the time. 489 of 1,034 queries (47.3%) matched the reference results on the Spider dev set.
 
 Instruction: `Choose the next SQL token to generate an SQL query that will answer the question:\n{row['question']}\nSchema:\n{str(schema)}`
 
