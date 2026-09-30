@@ -1,0 +1,47 @@
+// claude generated this "sql grammar"
+start: query ";"
+
+query: select_core (set_op select_core)*
+set_op: "UNION"i | "INTERSECT"i | "EXCEPT"i
+
+select_core: "SELECT"i distinct? select_list from_clause where_clause? group_clause? order_clause? limit_clause?
+distinct: "DISTINCT"i
+select_list: "*" | select_item ("," select_item)*
+select_item: expr
+
+from_clause: "FROM"i table_ref join*
+table_ref: NAME alias?
+         | "(" query ")" alias?
+alias: "AS"i NAME
+join: "JOIN"i table_ref ("ON"i condition)?
+
+where_clause: "WHERE"i condition
+group_clause: "GROUP"i "BY"i column ("," column)* having?
+having: "HAVING"i condition
+order_clause: "ORDER"i "BY"i expr direction? ("," expr direction?)*
+direction: "ASC"i | "DESC"i
+limit_clause: "LIMIT"i NUMBER
+
+condition: or_cond
+or_cond: and_cond ("OR"i and_cond)*
+and_cond: predicate ("AND"i predicate)*
+predicate: expr comp_op expr
+         | expr comp_op "(" query ")"
+         | expr "NOT"i? "IN"i "(" query ")"
+         | expr "NOT"i? "LIKE"i STRING
+         | expr "BETWEEN"i value "AND"i value
+         | "(" condition ")"
+comp_op: "=" | "!=" | "<" | ">" | "<=" | ">="
+
+expr: column | value | agg
+agg: AGG_FN "(" (distinct? column | "*") ")"
+AGG_FN.2: /(COUNT|SUM|AVG|MIN|MAX)\b/i
+column: NAME ("." NAME)?
+value: NUMBER | STRING
+
+NAME: /(?!(SELECT|FROM|WHERE|AND|OR|NOT|IN|LIKE|BETWEEN|GROUP|BY|HAVING|ORDER|ASC|DESC|LIMIT|JOIN|ON|AS|DISTINCT|UNION|INTERSECT|EXCEPT|COUNT|SUM|AVG|MIN|MAX)\b)[A-Za-z_][A-Za-z0-9_]*/i
+NUMBER: /\d+(\.\d+)?/
+STRING: /'[^']*'|"[^"]*"/
+
+%import common.WS
+%ignore WS

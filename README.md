@@ -9,6 +9,7 @@ After finding out about this primitive, I immediately had a bunch of dumb ideas,
 ### usage
 
 Before running the scripts, download tiny-shakespeare with `uv run ./scripts/dwnld_shk.py` and train the tokenizer with `uv run ./scripts/train_tokenizer.py`.
+Aalo download spider from [here](https://drive.google.com/file/d/1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J/view) if you want to run `sql_gen.py` script; extract the archive into `./data dir`.
 
 ### experiments
 
