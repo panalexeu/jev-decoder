@@ -89,6 +89,11 @@ avg. loss: 7.71, uniform sampling: 4.17, catastrophic misses (>20 nats): 45
 
 todo, probably the funniest one if it works out
 
+#### sql_gen_cli.py 
+
+`sql_gen.py` proved that with the right context provided jev is somewhat capable of generating valid sql queries. 
+This script allows to prompt jev directly about `network1` db from spider benchmark.
+
 ### future work
 
 * can criteria/instruction tuning actually make jev a better decoder model?
