@@ -121,7 +121,9 @@ def _get_tokens(parser, query: str, ref_query: str, schema: dict) -> set:
 
 `sql_gen.py` showed that, given the right context (rules defined by a context-free grammar), jev is somewhat capable of generating valid SQL queries.
 `sql_gen_cli.py` lets you prompt jev directly about the `network_1` database from the Spider benchmark.
+
 P.S. Yay, I made jev generate working SQL queries!
+
 Below is the demo:
 
 ![demo](./demo.gif)
