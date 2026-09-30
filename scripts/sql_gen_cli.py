@@ -36,14 +36,17 @@ def _get_tokens(parser, query: str, words: set[str], numbers: set[str], schema: 
     return out
 
 
-def _schema_view(schema, words, numbers):
+def _schema_view(schema):
     t = Table(box=box.SIMPLE, header_style='bold cyan')
     t.add_column('table')
     t.add_column('columns')
     for name, cols in schema.items():
         t.add_row(name, ', '.join(cols))
-    vals = Text(f'strings: {", ".join(sorted(words)) or "-"}   numbers: {", ".join(sorted(numbers)) or "-"}', style='dim')
-    return Panel(Group(t, vals), title='schema', border_style='blue')
+    return Panel(t, title='schema', border_style='blue')
+
+
+def _values_view(words, numbers):
+    return Text(f'strings: {", ".join(sorted(words)) or "-"}   numbers: {", ".join(sorted(numbers)) or "-"}', style='dim')
 
 
 def _step_view(query, chosen, probs, step, n_opts):
@@ -83,24 +86,12 @@ def _result_view(query, rows):
     console.print(t)
 
 
-if __name__ == '__main__':
-    load_dotenv()
-    parser = Lark(_get_grammar(), parser="lalr")
-    client = TypeSafeClient()
-    db_id = 'network_1'
-    schema = _load_schemas()[db_id]
-
-    console.rule(f'[bold cyan]text-to-SQL · {db_id}')
-    prompt = console.input('[bold]Enter your prompt:[/] ')
+def _generate(parser, client, prompt, schema, db_id, max_tokens=128, end_token=';'):
     words = {f'"{w}"' for w in re.findall(r'\b[A-Z]\w*', prompt)}
     numbers = set(re.findall(r'\b\d+', prompt))
-    console.print(_schema_view(schema, words, numbers))
+    console.print(_values_view(words, numbers))
 
     instr = f'Choose the next SQL token to generate an SQL query that will answer the question:\n{prompt}\nSchema:\n{str(schema)}'
-
-    # sampling params
-    max_tokens = 128
-    END_TOKEN = ';'
 
     query = ''
     i = 0
@@ -121,9 +112,34 @@ if __name__ == '__main__':
             live.update(_step_view(query, token, probs, i, len(tokens)))
             query = query + ' ' + token
 
-            if token == END_TOKEN or i >= max_tokens:
+            if token == end_token or i >= max_tokens:
                 break
 
     console.print()
     _result_view(query, _exec_statement(query, db_id))
-    
+
+
+if __name__ == '__main__':
+    load_dotenv()
+    parser = Lark(_get_grammar(), parser="lalr")
+    client = TypeSafeClient()
+    db_id = 'network_1'
+    schema = _load_schemas()[db_id]
+
+    console.rule(f'[bold cyan]text-to-SQL · {db_id}')
+    console.print(_schema_view(schema))
+    console.print('[dim]empty line or "exit" to quit[/]\n')
+
+    while True:
+        try:
+            prompt = console.input('[bold]Enter your prompt:[/] ').strip()
+        except (KeyboardInterrupt, EOFError):
+            break
+        if prompt.lower() in ('', 'exit', 'quit'):
+            break
+        try:
+            _generate(parser, client, prompt, schema, db_id)
+        except KeyboardInterrupt:
+            console.print('\n[yellow]generation stopped[/]')
+        console.rule(style='dim')
+        
