@@ -9,7 +9,7 @@ After finding out about this primitive, I immediately had a bunch of dumb ideas,
 ### usage
 
 Before running the scripts, download tiny-shakespeare with `uv run ./scripts/dwnld_shk.py` and train the tokenizer with `uv run ./scripts/train_tokenizer.py`.
-Aalo download spider from [here](https://drive.google.com/file/d/1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J/view) if you want to run `sql_gen.py` script; extract the archive into `./data dir`.
+Also, download Spider from [here](https://drive.google.com/file/d/1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J/view) if you want to run the `sql_gen.py` script, and extract the archive into the `./data` dir.
 
 ### experiments
 
@@ -87,13 +87,45 @@ avg. loss: 7.71, uniform sampling: 4.17, catastrophic misses (>20 nats): 45
 
 #### sql_gen.py
 
-todo, probably the funniest one if it works out
+The idea is again to use jev as a decoder model, but this time the choices come from context-free grammar rules defined for SQL, with one caveat:
+NUMBER and STRING tokens are extracted from the correct reference query and added to the choices.
+The grammar rules are defined in the `sql.lark` file (I asked Claude to write them). Surprisingly, jev is pretty good at
+writing working SQL queries (compared to the previous experiments). On the Spider benchmark, jev's queries return the same results as the reference queries roughly half the time.
 
-#### sql_gen_cli.py 
+Instruction: `Choose the next SQL token to generate an SQL query that will answer the question:\n{row['question']}\nSchema:\n{str(schema)}`
 
-`sql_gen.py` proved that with the right context provided jev is somewhat capable of generating valid sql queries. 
-This script allows to prompt jev directly about `network1` db from spider benchmark.
+State: `''`
+
+Criteria:
+```python
+def _get_tokens(parser, query: str, ref_query: str, schema: dict) -> set:
+    qp = parser.parse_interactive(query)
+    qp.exhaust_lexer()
+    ref = parser.parse_interactive(ref_query).exhaust_lexer()
+    values = {
+        "NAME": set(schema) | {c for cs in schema.values() for c in cs} | {f"T{i}" for i in range(1, 6)},
+        "AGG_FN": {"COUNT", "SUM", "AVG", "MIN", "MAX"},
+        "STRING": {t.value for t in ref if t.type == "STRING"},
+        "NUMBER": {t.value for t in ref if t.type == "NUMBER"} or {"1"},
+    }
+    out = set()
+    for t in qp.accepts() - {"$END"}:
+        if t in values:
+            out |= values[t]
+        elif isinstance(p := parser.get_terminal(t).pattern, PatternStr):
+            out.add(p.value)
+    return out
+```
+
+#### sql_gen_cli.py
+
+`sql_gen.py` showed that, given the right context (rules defined by a context-free grammar), jev is somewhat capable of generating valid SQL queries.
+`sql_gen_cli.py` lets you prompt jev directly about the `network_1` database from the Spider benchmark.
+P.S. Yay, I made jev generate working SQL queries!
+Below is the demo:
+
+![demo](./demo.gif)
 
 ### future work
 
-* can criteria/instruction tuning actually make jev a better decoder model?
+* Can criteria/instruction tuning actually make jev a better decoder model?
