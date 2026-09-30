@@ -1,4 +1,4 @@
-## jev-demo
+## jev-decoder
 
 I was curious about the jev release and decided to play with it.
 jev is known not to be a decoder model but rather some form of encoder. It is advertised as a model that evaluates a state and
