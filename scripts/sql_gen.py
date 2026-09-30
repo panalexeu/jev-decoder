@@ -1,4 +1,7 @@
 import json 
+import sqlite3
+from typing import Any
+from collections import Counter
 
 from lark import Lark
 from rich import print 
@@ -49,6 +52,14 @@ def _get_tokens(parser, query: str, ref_query: str, schema: dict) -> set:
 def _get_criteria(tokens: tuple) -> dict: 
     return {t: t for t in tokens}
 
+def _exec_statement(statement: str, db_id: str) -> list[Any] | None: 
+    path = _data_path + 'database/' + f'{db_id}/' + f'{db_id}.sqlite'
+    con = sqlite3.connect(path)
+    try: 
+        return con.execute(statement).fetchall()
+    except Exception: 
+        return None
+
 if __name__ == "__main__":
     load_dotenv()
     ds = _get_val_ds() 
@@ -59,6 +70,7 @@ if __name__ == "__main__":
     prefix = 'Choose the next SQL token to generate an SQL query that will answer the question:'
     
     # sampling params 
+    verbose = False
     max_tokens = 64
     END_TOKEN = ';'
 
@@ -80,16 +92,20 @@ if __name__ == "__main__":
                     )
                 }
             )
-            print('*' * 32)
-            print(tokens)
-            print(response.answers['token'].probabilities)
             token = response.answers['token'].choice
             query = query + ' ' + token
+
+            if verbose: 
+                print('*' * 32)
+                print(tokens)
+                print(response.answers['token'].probabilities)
 
             i += 1
             if token == END_TOKEN or i >= max_tokens: 
                 break
-
+            
         print('=' * 32)
         print(f'question: {row['question']} | query: {query}')
+        print('exec result:')
+        print(_exec_statement(query, row['db_id']))
         input('press enter: ')
