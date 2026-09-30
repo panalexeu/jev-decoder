@@ -59,7 +59,7 @@ if __name__ == "__main__":
     prefix = 'Choose the next SQL token to generate an SQL query that will answer the question:'
     
     # sampling params 
-    max_tokens = 32 
+    max_tokens = 64
     END_TOKEN = ';'
 
     for row in ds: 
